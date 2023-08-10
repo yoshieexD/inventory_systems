@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:field_service_client/models/user.dart';
+import 'package:client/models/user.dart';
 
 part 'user_event.dart';
 part 'user_state.dart';
