@@ -1,9 +1,11 @@
 import 'package:client/screens/home_screen.dart';
 import 'package:client/screens/login_screen.dart';
-import 'package:client/widgets/bottom_navbar_widget.dart';
-import 'package:client/widgets/safe_area_widget.dart';
+import 'package:client/widget/bottom_navbar_widget.dart';
+import 'package:client/widget/safe_area_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:client/screens/profile_screen.dart';
+import 'package:client/screens/material_request_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -17,8 +19,15 @@ class AppRouter {
           navigatorKey: _shellNavigatorKey,
           pageBuilder: (context, state, child) {
             print(state.location);
+            final showNavBar = state.location == '/' ||
+                state.location == '/profile' ||
+                state.location == '/material';
             return NoTransitionPage(
-              child: BottomNavbarWidget(location: state.location, child: child),
+              child: BottomNavbarWidget(
+                location: state.location,
+                showNavbar: showNavBar,
+                child: child,
+              ),
             );
           },
           routes: [
@@ -40,6 +49,28 @@ class AppRouter {
                 return const MaterialPage(
                   child: SafeAreaWidget(
                     HomeScreen(),
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              name: "profile",
+              path: '/profile',
+              pageBuilder: (context, state) {
+                return const MaterialPage(
+                  child: SafeAreaWidget(
+                    ProfileScreen(),
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              name: "material request",
+              path: '/material',
+              pageBuilder: (context, state) {
+                return const MaterialPage(
+                  child: SafeAreaWidget(
+                    materialRequestScreen(),
                   ),
                 );
               },

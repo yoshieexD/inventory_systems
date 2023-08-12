@@ -18,17 +18,7 @@ app.config["SECRET_KEY"] = environ.get("SESSION_SECRET")
 
 
 ses = Session(app)
-CORS(
-    app,
-    resources={
-        r"/*": {
-            "origins": ["http://localhost:52342"],
-            "methods": ["POST", "GET", "OPTIONS"],
-            "allow_headers": ["Content-Type"],
-            "supports_credentials": True,
-        }
-    },
-)
+CORS(app, supports_credentials=True)
 
 
 @app.route("/")
@@ -48,18 +38,13 @@ def log_in():
         request.json.get("password"),
         {},
     )
-    print(request.json.get("email"))
-    print(request.json.get("password"))
-    print("Authenticated UID:", uid)
+
     if uid:
         session["uid"] = uid
         session["email"] = request.json.get("email")
         session["password"] = request.json.get("password")
 
-    is_authenticated = isAuth()
-
-    if not is_authenticated:
-        return "Not Authenticated!", 400
+    isAuth()
 
     name = query(
         session["uid"],
@@ -73,15 +58,10 @@ def log_in():
     services = query(
         session["uid"],
         session["password"],
-        "project.task",
+        "stock.picking",
         "search_read",
         [],
-        [
-            "name",
-            "partner_id",
-            "project_id",
-            "user_ids",
-        ],
+        ["name", "partner_id", "state"],
     )
 
     response = {"name": name[0]["name"], "services": services}
@@ -89,50 +69,78 @@ def log_in():
     return jsonify(response), 200
 
 
-@app.route("/all-tasks", methods=["GET"])
-def get_all_tasks():
+@app.route("/logout", methods=["POST"])
+def log_out():
+    session.pop("uid", None)
+    session.pop("email", None)
+    session.pop("password", None)
+    return "Logged out successfully", 200
+
+
+# @app.route("/all-tasks", methods=["GET"])
+# def get_all_tasks():
+#     isAuth()
+
+#     response = {
+#         "services": query(
+#             session["uid"],
+#             session["password"],
+#             "project.task",
+#             "search_read",
+#             [],
+#             [
+#                 "name",
+#                 "partner_id",
+#                 "project_id",
+#                 "user_ids",
+#             ],
+#         )
+#     }
+
+#     return jsonify(response), 200
+
+
+@app.route("/all-material", methods=["GET"])
+def get_all_material_request():
     isAuth()
 
     response = {
         "services": query(
             session["uid"],
             session["password"],
-            "project.task",
+            "stock.picking",
             "search_read",
-            [],
-            [
-                "name",
-                "partner_id",
-                "project_id",
-                "user_ids",
-            ],
+            ["picking_type_id" == 15],
+            ["name", "partner_id", "state"],
         )
     }
-
+    print("sessionuid:test", session["uid"])
+    print(response)
+    print("sessionpassword:test", session["password"])
     return jsonify(response), 200
 
 
-@app.route("/my-tasks", methods=["GET"])
-def get_my_tasks():
-    isAuth()
+# @app.route("/my-tasks", methods=["GET"])
+# def get_my_tasks():
+#     isAuth()
 
-    response = {
-        "services": query(
-            session["uid"],
-            session["password"],
-            "project.task",
-            "search_read",
-            [[["user_ids", "=", session["uid"]]]],
-            [
-                "name",
-                "partner_id",
-                "project_id",
-                "user_ids",
-            ],
-        )
-    }
+#     response = {
+#         "services": query(
+#             session["uid"],
+#             session["password"],
+#             "project.task",
+#             "search_read",
+#             [[["user_ids", "=", session["uid"]]]],
+#             [
+#                 "name",
+#                 "partner_id",
+#                 "project_id",
+#                 "user_ids",
+#             ],
+#         )
+#     }
 
-    return jsonify(response), 200
+#     return jsonify(response), 200
 
 
 def query(uid, password, model, method, condition, fields):

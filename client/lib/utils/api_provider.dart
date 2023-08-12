@@ -34,6 +34,18 @@ class ApiProvider {
 
   Future<Map<String, dynamic>> login(
       String email, String password, context) async {
+    if (email.isEmpty) {
+      return {
+        'success': false,
+        'message': 'invalid email format',
+      };
+    }
+    if (password.isEmpty || password.length < 3) {
+      return {
+        'success': false,
+        'message': 'Password is wrong',
+      };
+    }
     final rawResponse = await _post(
       "/login",
       {
@@ -50,29 +62,51 @@ class ApiProvider {
     }
   }
 
-  Future<Map<String, dynamic>> getAllTasks() async {
-    final rawResponse = await _get(
-      "/all-tasks",
-    );
+  Future<Map<String, dynamic>> logout() async {
+    try {
+      final rawResponse = await _post(
+        "/logout",
+      );
+      Map<String, dynamic> response = jsonDecode(rawResponse.toString());
+      return response;
+    } catch (e) {
+      return {'error': 'Logout failed'};
+    }
+  }
 
+  // Future<Map<String, dynamic>> getAllTasks() async {
+  //   final rawResponse = await _get(
+  //     "/all-material",
+  //   );
+
+  //   try {
+  //     Map<String, dynamic> response = jsonDecode(rawResponse.toString());
+  //     return response;
+  //   } catch (e) {
+  //     return {'error': 'Invalid JSON response'};
+  //   }
+  // }
+
+  Future<Map<String, dynamic>> allMaterialRequest() async {
+    final rawResponse = await _get("/all-material");
     try {
       Map<String, dynamic> response = jsonDecode(rawResponse.toString());
       return response;
     } catch (e) {
-      return {'error': 'Invalid JSON response'};
+      return {'error': 'Invalid Json Response'};
     }
   }
 
-  Future<Map<String, dynamic>> getMyTasks() async {
-    final rawResponse = await _get(
-      "/my-tasks",
-    );
+  // Future<Map<String, dynamic>> getMyTasks() async {
+  //   final rawResponse = await _get(
+  //     "/all-material",
+  //   );
 
-    try {
-      Map<String, dynamic> response = jsonDecode(rawResponse.toString());
-      return response;
-    } catch (e) {
-      return {'error': 'Invalid JSON response'};
-    }
-  }
+  //   try {
+  //     Map<String, dynamic> response = jsonDecode(rawResponse.toString());
+  //     return response;
+  //   } catch (e) {
+  //     return {'error': 'Invalid JSON response'};
+  //   }
+  // }
 }

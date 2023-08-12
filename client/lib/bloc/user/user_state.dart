@@ -22,3 +22,8 @@ class UserLoaded extends UserState {
   @override
   List<Object> get props => [user];
 }
+
+class UserLoggedOut extends UserState {
+  @override
+  List<Object> get props => [];
+}

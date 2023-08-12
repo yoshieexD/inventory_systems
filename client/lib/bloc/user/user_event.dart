@@ -31,3 +31,8 @@ class SetUser extends UserEvent {
   @override
   List<Object> get props => [name, cookies];
 }
+
+class Logout extends UserEvent {
+  @override
+  List<Object> get props => [];
+}

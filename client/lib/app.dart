@@ -36,7 +36,7 @@ class App extends StatelessWidget {
           if (state is UserLoaded) {
             User user = state.user;
             return MaterialApp.router(
-              title: 'AWB Field Service',
+              title: 'AWB inventory',
               debugShowCheckedModeBanner: false,
               theme: ThemeData(
                 colorScheme: ColorScheme.fromSeed(

@@ -13,5 +13,9 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     on<SetUser>((event, emit) async {
       emit(UserLoaded(user: User(name: event.name, cookies: event.cookies)));
     });
+    on<Logout>((event, emit) async {
+      // Clear user data here (if needed)
+      emit(UserLoggedOut());
+    });
   }
 }

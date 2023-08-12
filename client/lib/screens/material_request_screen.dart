@@ -6,14 +6,14 @@ import '../models/user.dart';
 import '../bloc/user/user_bloc.dart';
 import '../utils/api_provider.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class materialRequestScreen extends StatefulWidget {
+  const materialRequestScreen({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<materialRequestScreen> createState() => _materialRequestScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _materialRequestScreenState extends State<materialRequestScreen> {
   final ApiProvider apiProvider = ApiProvider();
   @override
   Widget build(BuildContext context) {
@@ -55,15 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 const SizedBox(
                   width: 10,
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final response = await apiProvider.allMaterialRequest();
-                    context
-                        .read<ServiceBloc>()
-                        .add(SetServices(services: response["services"]));
-                  },
-                  child: const Text("My tasks"),
                 ),
               ],
             )
