@@ -41,29 +41,26 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("Tasks"),
             Row(
               children: [
-                ElevatedButton(
+                IconButton(
                   onPressed: () async {
-                    final response = await apiProvider.allMaterialRequest();
-                    context
-                        .read<ServiceBloc>()
-                        .add(SetServices(services: response["services"]));
+                    showModalBottomSheet<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Container(
+                            height: 200,
+                            child: Center(
+                                child:
+                                    const Text('Your Modal Content Goes here')),
+                          );
+                        });
                   },
-                  child: const Text("All tasks"),
+                  icon: const Icon(Icons.add),
+                  tooltip: "Material Request",
                 ),
                 const SizedBox(
                   width: 10,
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    final response = await apiProvider.allMaterialRequest();
-                    context
-                        .read<ServiceBloc>()
-                        .add(SetServices(services: response["services"]));
-                  },
-                  child: const Text("My tasks"),
                 ),
               ],
             )

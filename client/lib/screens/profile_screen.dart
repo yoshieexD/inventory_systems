@@ -30,12 +30,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const SizedBox(height: 20),
-              const Text(
-                'John Doe',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              BlocBuilder<UserBloc, UserState>(
+                builder: (context, state) {
+                  if (state is UserLoaded) {
+                    User user = state.user;
+                    return Text(
+                      "Hello, ${user.name}!",
+                      style: const TextStyle(fontSize: 16),
+                    );
+                  } else {
+                    return const Text("Error");
+                  }
+                },
               ),
               const SizedBox(height: 10),
               const Text(

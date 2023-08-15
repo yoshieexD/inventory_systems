@@ -21,6 +21,27 @@ ses = Session(app)
 CORS(app, supports_credentials=True)
 
 
+def isAuth():
+    if "uid" in session and "email" in session and "password" in session:
+        return True
+    return False
+
+
+def query(uid, password, model, method, condition, fields):
+    models = xmlrpc.client.ServerProxy(
+        "{}/xmlrpc/2/object".format(environ.get("URL")),
+    )
+    return models.execute_kw(
+        environ.get("DB"),
+        uid,
+        password,
+        model,
+        method,
+        condition,
+        {"fields": fields},
+    )
+
+
 @app.route("/")
 def hello_world():
     return "<p>Hello, World!</p>"
@@ -61,10 +82,14 @@ def log_in():
         "stock.picking",
         "search_read",
         [],
-        ["name", "partner_id", "state"],
+        ["name", "partner_id", "state", "picking_type_id"],
     )
 
+    print("services in login", services)
+
     response = {"name": name[0]["name"], "services": services}
+
+    print(response)
 
     return jsonify(response), 200
 
@@ -102,22 +127,38 @@ def log_out():
 
 @app.route("/all-material", methods=["GET"])
 def get_all_material_request():
-    isAuth()
+    common = xmlrpc.client.ServerProxy("{}/xmlrpc/2/common".format(environ.get("URL")))
 
-    response = {
-        "services": query(
-            session["uid"],
-            session["password"],
-            "stock.picking",
-            "search_read",
-            ["picking_type_id" == 15],
-            ["name", "partner_id", "state"],
-        )
-    }
-    print("sessionuid:test", session["uid"])
-    print(response)
-    print("sessionpassword:test", session["password"])
-    return jsonify(response), 200
+    uid = common.authenticate(
+        environ.get("DB"), environ.get("EMAIL"), environ.get("PASSWORD"), {}
+    )
+
+    if uid:
+        session["uid"] = uid
+        session["email"] = environ.get("EMAIL")
+        session["password"] = environ.get("PASSWORD")
+
+        uid = session.get("uid")
+        password = session.get("password")
+        if uid and password:
+            response = {
+                "service": query(
+                    uid,
+                    password,
+                    "stock.picking",
+                    "search_read",
+                    [[["picking_type_id", "=", 15]]],
+                    ["name", "partner_id", "state", "picking_type_id"],
+                )
+            }
+            print("sessionuid:test", session["uid"])
+            print(response)
+            print("sessionpassword:test", session["password"])
+            return jsonify(response), 200
+        else:
+            return "Not Authenticated!", 400
+    else:
+        return "Authentication Failed!", 401
 
 
 # @app.route("/my-tasks", methods=["GET"])
@@ -141,29 +182,6 @@ def get_all_material_request():
 #     }
 
 #     return jsonify(response), 200
-
-
-def query(uid, password, model, method, condition, fields):
-    models = xmlrpc.client.ServerProxy(
-        "{}/xmlrpc/2/object".format(
-            environ.get("URL"),
-        ),
-    )
-    return models.execute_kw(
-        environ.get("DB"),
-        uid,
-        password,
-        model,
-        method,
-        condition,
-        {"fields": fields},
-    )
-
-
-def isAuth():
-    if "uid" and "email" and "password" in session:
-        return
-    return "Not Authenticated!", 400
 
 
 if __name__ == "__main__":

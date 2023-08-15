@@ -31,7 +31,7 @@ class _materialRequestScreenState extends State<materialRequestScreen> {
             User user = state.user;
             return Text("Hello, ${user.name}!");
           } else {
-            return const Text("tsting1");
+            return const Text("Error");
           }
         },
       ),
@@ -39,19 +39,25 @@ class _materialRequestScreenState extends State<materialRequestScreen> {
       BlocListener<ServiceBloc, ServiceState>(
         listener: (context, state) {},
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            const Text("Tasks"),
             Row(
               children: [
-                ElevatedButton(
+                IconButton(
                   onPressed: () async {
-                    final response = await apiProvider.allMaterialRequest();
-                    context
-                        .read<ServiceBloc>()
-                        .add(SetServices(services: response["services"]));
+                    showModalBottomSheet<void>(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Container(
+                            height: 200,
+                            child: Center(
+                                child:
+                                    const Text('Your Modal Content Goes here')),
+                          );
+                        });
                   },
-                  child: const Text("All tasks"),
+                  icon: const Icon(Icons.add),
+                  tooltip: "Material Request",
                 ),
                 const SizedBox(
                   width: 10,
@@ -70,43 +76,51 @@ class _materialRequestScreenState extends State<materialRequestScreen> {
 
           if (state is ServiceLoaded) {
             List<dynamic> service = state.service;
+            final filteredService = service.where((item) =>
+                item['picking_type_id'] != null &&
+                item['picking_type_id'][0] == 15 &&
+                item['picking_type_id'][1] == "My Company: Testing");
 
             return SizedBox(
               height: MediaQuery.of(context).size.height - 180,
               child: ListView.builder(
-                itemCount: service.length,
+                itemCount: filteredService.length,
                 itemBuilder: (v, i) => Card(
                   key: UniqueKey(),
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                width: 230,
-                                child: Text(
-                                  "Reference: ${service[i]['name'].toString()}",
-                                  softWrap: true,
-                                  maxLines: 2,
-                                ),
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 230,
+                              child: Text(
+                                "Reference: ${filteredService.elementAt(i)['name'].toString()}",
+                                softWrap: true,
+                                maxLines: 2,
                               ),
-                              SizedBox(
-                                width: 230,
-                                child: Text(
-                                  "Contact: ${service[i]['partner_id'] == false ? 'None' : service[i]['partner_id'][1].toString()}",
-                                  softWrap: true,
-                                  maxLines: 2,
-                                ),
+                            ),
+                            SizedBox(
+                              width: 230,
+                              child: Text(
+                                "Contact: ${filteredService.elementAt(i)['partner_id'] == false ? 'None' : filteredService.elementAt(i)['partner_id'][1].toString()}",
+                                softWrap: true,
+                                maxLines: 2,
                               ),
-                              Text("state: ${service[i]['state'].toString()}"),
-                            ],
-                          ),
-                        ]),
+                            ),
+                            Text(
+                                "state: ${filteredService.elementAt(i)['state'].toString()}"),
+                            Text(
+                                "ID: ${filteredService.elementAt(i)['picking_type_id'][0].toString()}"),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
