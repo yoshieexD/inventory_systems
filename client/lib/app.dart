@@ -4,28 +4,32 @@ import 'package:client/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/user/user_bloc.dart';
+import 'package:client/bloc/material/material_bloc.dart';
 
 import 'models/user.dart';
 
 class App extends StatelessWidget {
-  const App({super.key});
+  const App({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(
+        BlocProvider<UserBloc>(
           create: (context) => UserBloc()
             ..add(
               const GetName(),
             ),
         ),
-        BlocProvider(
+        BlocProvider<ServiceBloc>(
           create: (context) => ServiceBloc()
             ..add(
               const GetServices(),
             ),
-        )
+        ),
+        BlocProvider<MaterialBloc>(
+          create: (context) => MaterialBloc()..add(const GetMaterial()),
+        ),
       ],
       child: BlocBuilder<UserBloc, UserState>(
         builder: (context, state) {

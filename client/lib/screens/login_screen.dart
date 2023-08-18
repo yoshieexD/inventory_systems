@@ -65,46 +65,51 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 30), // Increased spacing
-              MouseRegion(
-                onEnter: (_) => setState(() => isHovered = true),
-                onExit: (_) => setState(() => isHovered = false),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      final response = await apiProvider.login(
-                        emailController.text,
-                        passwordController.text,
-                        context,
-                      );
+              const SizedBox(height: 30),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 25),
+                width: double.infinity,
+                child: MouseRegion(
+                  onEnter: (_) => setState(() => isHovered = true),
+                  onExit: (_) => setState(() => isHovered = false),
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        final response = await apiProvider.login(
+                          emailController.text,
+                          passwordController.text,
+                          context,
+                        );
 
-                      context.read<UserBloc>().add(SetUser(
-                            name: response["name"].toString(),
-                            cookies: response["name"].toString(),
-                          ));
+                        context.read<UserBloc>().add(SetUser(
+                              name: response["name"].toString(),
+                              cookies: response["name"].toString(),
+                            ));
 
-                      context.read<ServiceBloc>().add(
-                            SetServices(services: response["services"]),
-                          );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isHovered
-                        ? Theme.of(context).colorScheme.primary.withOpacity(0.9)
-                        : Theme.of(context).colorScheme.primary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 90, // Increased width
-                      vertical: 15, // Increased height
+                        context.read<ServiceBloc>().add(
+                              SetServices(services: response["services"]),
+                            );
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isHovered
+                          ? Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.9)
+                          : Theme.of(context).colorScheme.primary,
+                      padding: const EdgeInsets.all(25),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    "Log In",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.background,
-                      fontSize: 18,
+                    child: const Text(
+                      "Sign in",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),

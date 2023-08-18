@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:go_router/go_router.dart';
 
 class ApiProvider {
   final Dio dio = Dio();
@@ -11,7 +12,6 @@ class ApiProvider {
       final response = await dio.get(
         "${dotenv.env['API_URL']}" "$res",
       );
-      print(response);
       return response;
     } catch (err) {
       return;
@@ -56,6 +56,8 @@ class ApiProvider {
 
     try {
       Map<String, dynamic> response = jsonDecode(rawResponse.toString());
+      print(password);
+      print(email);
       return response;
     } catch (e) {
       return {'error': 'Invalid JSON response'};
@@ -74,19 +76,6 @@ class ApiProvider {
     }
   }
 
-  // Future<Map<String, dynamic>> getAllTasks() async {
-  //   final rawResponse = await _get(
-  //     "/all-material",
-  //   );
-
-  //   try {
-  //     Map<String, dynamic> response = jsonDecode(rawResponse.toString());
-  //     return response;
-  //   } catch (e) {
-  //     return {'error': 'Invalid JSON response'};
-  //   }
-  // }
-
   Future<Map<String, dynamic>> allMaterialRequest() async {
     final rawResponse = await _get("/all-material");
     try {
@@ -97,16 +86,41 @@ class ApiProvider {
     }
   }
 
-  // Future<Map<String, dynamic>> getMyTasks() async {
-  //   final rawResponse = await _get(
-  //     "/all-material",
-  //   );
+  Future<Map<String, dynamic>> materialAll() async {
+    final rawResponse = await _get("/material");
+    try {
+      Map<String, dynamic> response = jsonDecode(rawResponse.toString());
+      return response;
+    } catch (e) {
+      return {'error': 'Invalid Json Response'};
+    }
+  }
 
+  Future<Map<String, dynamic>> viewRequest(String id) async {
+    final rawResponse = await _get(
+      "/request?id=$id",
+    );
+    Map<String, dynamic> response = jsonDecode(rawResponse.toString());
+    return response;
+  }
+
+  // Future createMaterialRequest(
+  //   String contact,
+  //   String product,
+  //   String quantity,
+  //   String unit,
+  // ) async {
   //   try {
-  //     Map<String, dynamic> response = jsonDecode(rawResponse.toString());
+  //     final rawResponse = await _post("/create-material-request", {
+  //       'contact': contact,
+  //       'product': product,
+  //       'quantity': quantity,
+  //       'unit': unit,
+  //     });
+  //     int response = jsonDecode(rawResponse.toString());
   //     return response;
   //   } catch (e) {
-  //     return {'error': 'Invalid JSON response'};
+  //     return {'error': 'creating material request failed'};
   //   }
   // }
 }

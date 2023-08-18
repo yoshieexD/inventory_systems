@@ -1,5 +1,8 @@
+import 'dart:js';
+
 import 'package:client/screens/home_screen.dart';
 import 'package:client/screens/login_screen.dart';
+import 'package:client/screens/material_item.dart';
 import 'package:client/widget/bottom_navbar_widget.dart';
 import 'package:client/widget/safe_area_widget.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +74,17 @@ class AppRouter {
                 return const MaterialPage(
                   child: SafeAreaWidget(
                     materialRequestScreen(),
+                  ),
+                );
+              },
+            ),
+            GoRoute(
+              name: 'request',
+              path: '/request/:id',
+              pageBuilder: (context, state) {
+                return MaterialPage(
+                  child: SafeAreaWidget(
+                    MaterialItemScreen(state.params),
                   ),
                 );
               },

@@ -61,11 +61,6 @@ class _BottomNavbarWidgetState extends State<BottomNavbarWidget> {
                     icon: Icon(Icons.request_page_outlined),
                     label: 'Material Request',
                   ),
-                  NavigationDestination(
-                    selectedIcon: Icon(Icons.account_circle),
-                    icon: Icon(Icons.account_circle_outlined),
-                    label: 'Profile',
-                  ),
                 ],
               )
             : null);
