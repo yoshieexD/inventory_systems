@@ -1,14 +1,16 @@
-import 'dart:js';
-
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:client/bloc/user/user_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:client/screens/profile_screen.dart';
+import 'package:client/screens/material_request_screen.dart';
 import 'package:client/screens/home_screen.dart';
 import 'package:client/screens/login_screen.dart';
 import 'package:client/screens/material_item.dart';
+
 import 'package:client/widget/bottom_navbar_widget.dart';
 import 'package:client/widget/safe_area_widget.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:client/screens/profile_screen.dart';
-import 'package:client/screens/material_request_screen.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();

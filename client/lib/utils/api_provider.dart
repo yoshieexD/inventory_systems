@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 class ApiProvider {
   final Dio dio = Dio();
 
-  Future _get(String res) async {
+  Future get(String res) async {
     try {
       dio.options.extra['withCredentials'] = true;
       final response = await dio.get(
@@ -18,7 +18,7 @@ class ApiProvider {
     }
   }
 
-  Future _post(String res, [Map<String, dynamic>? data]) async {
+  Future post(String res, [Map<String, dynamic>? data]) async {
     try {
       dio.options.extra['withCredentials'] = true;
 
@@ -46,7 +46,7 @@ class ApiProvider {
         'message': 'Password is wrong',
       };
     }
-    final rawResponse = await _post(
+    final rawResponse = await post(
       "/login",
       {
         'email': email,
@@ -56,8 +56,6 @@ class ApiProvider {
 
     try {
       Map<String, dynamic> response = jsonDecode(rawResponse.toString());
-      print(password);
-      print(email);
       return response;
     } catch (e) {
       return {'error': 'Invalid JSON response'};
@@ -66,7 +64,7 @@ class ApiProvider {
 
   Future<Map<String, dynamic>> logout() async {
     try {
-      final rawResponse = await _post(
+      final rawResponse = await post(
         "/logout",
       );
       Map<String, dynamic> response = jsonDecode(rawResponse.toString());
@@ -77,7 +75,7 @@ class ApiProvider {
   }
 
   Future<Map<String, dynamic>> allMaterialRequest() async {
-    final rawResponse = await _get("/all-material");
+    final rawResponse = await get("/all-material");
     try {
       Map<String, dynamic> response = jsonDecode(rawResponse.toString());
       return response;
@@ -87,7 +85,7 @@ class ApiProvider {
   }
 
   Future<Map<String, dynamic>> materialAll() async {
-    final rawResponse = await _get("/material");
+    final rawResponse = await get("/material");
     try {
       Map<String, dynamic> response = jsonDecode(rawResponse.toString());
       return response;
@@ -97,30 +95,42 @@ class ApiProvider {
   }
 
   Future<Map<String, dynamic>> viewRequest(String id) async {
-    final rawResponse = await _get(
+    final rawResponse = await get(
       "/request?id=$id",
     );
     Map<String, dynamic> response = jsonDecode(rawResponse.toString());
     return response;
   }
 
-  // Future createMaterialRequest(
-  //   String contact,
-  //   String product,
-  //   String quantity,
-  //   String unit,
-  // ) async {
-  //   try {
-  //     final rawResponse = await _post("/create-material-request", {
-  //       'contact': contact,
-  //       'product': product,
-  //       'quantity': quantity,
-  //       'unit': unit,
-  //     });
-  //     int response = jsonDecode(rawResponse.toString());
-  //     return response;
-  //   } catch (e) {
-  //     return {'error': 'creating material request failed'};
-  //   }
-  // }
+  Future<Map<String, dynamic>> createRequest(
+    String id,
+    String product,
+    String quantity,
+    String unit,
+  ) async {
+    try {
+      final rawResponse = await post("/create-request?id=$id", {
+        "product_id": product,
+        "qty_done": quantity,
+        "product_uom_id": unit,
+      });
+      final Map<String, dynamic> response = jsonDecode(rawResponse.toString());
+      print(response);
+      return response;
+    } catch (error) {
+      return {'error': 'Creating material request failed'};
+    }
+  }
+
+  Future createMaterialRequest(String contactName, int contactId) async {
+    try {
+      final rawResponse = await post("/create-material", {
+        'partner_id': contactId,
+      });
+      final Map<String, dynamic> response = jsonDecode(rawResponse.toString());
+      return response;
+    } catch (error) {
+      return {'error': 'creating material request failed'};
+    }
+  }
 }

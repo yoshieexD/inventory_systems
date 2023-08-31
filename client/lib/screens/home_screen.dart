@@ -25,10 +25,24 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _fetchMaterialRequest() async {
-    final response = await apiProvider.materialAll();
-    context
-        .read<ServiceBloc>()
-        .add(SetServices(services: response["services"]));
+    try {
+      final response = await apiProvider.materialAll();
+
+      if (response != null) {
+        if (response["services"] != null &&
+            response["services"] is List<dynamic>) {
+          context
+              .read<ServiceBloc>()
+              .add(SetServices(services: response["services"]));
+        } else {
+          print('Invalid or empty "services" data in the response');
+        }
+      } else {
+        print('Response is null');
+      }
+    } catch (e) {
+      print('Error fetching material data: $e');
+    }
   }
 
   @override

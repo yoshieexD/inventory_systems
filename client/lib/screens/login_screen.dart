@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/user/user_bloc.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:client/utils/api_provider.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
 
@@ -12,12 +15,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController passwordController = TextEditingController();
   TextEditingController emailController = TextEditingController();
 
   final ApiProvider apiProvider = ApiProvider();
-
+  bool loginState = false;
   bool isHovered = false;
 
   @override
@@ -80,7 +84,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           passwordController.text,
                           context,
                         );
-
+                        if (response['success'] == true) {
+                          final SharedPreferences prefs = await _prefs;
+                          prefs.setString('name', response['name']);
+                          final savedName = prefs.getString('name');
+                          print('Data saved: $savedName');
+                        }
                         context.read<UserBloc>().add(SetUser(
                               name: response["name"].toString(),
                               cookies: response["name"].toString(),

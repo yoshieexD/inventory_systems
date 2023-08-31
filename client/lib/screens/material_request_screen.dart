@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +8,7 @@ import '../bloc/service/service_bloc.dart';
 import '../models/user.dart';
 import '../bloc/user/user_bloc.dart';
 import '../utils/api_provider.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class materialRequestScreen extends StatefulWidget {
   const materialRequestScreen({Key? key}) : super(key: key);
@@ -19,6 +21,13 @@ class _MaterialRequestScreenState extends State<materialRequestScreen> {
   final ApiProvider apiProvider = ApiProvider();
   final List<String> list = <String>['Sign out'];
   bool isDropdownVisible = false;
+
+  final contactController = TextEditingController();
+  final productController = TextEditingController();
+  final quantityController = TextEditingController();
+  final unitController = TextEditingController();
+
+  Map<String, dynamic>? apiResponse;
 
   @override
   void initState() {
@@ -34,6 +43,34 @@ class _MaterialRequestScreenState extends State<materialRequestScreen> {
           .add(SetServices(services: response["material"]));
     } else {}
   }
+
+  Future<void> _submitForm() async {
+    final contactName = contactController.text;
+
+    if (contactName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Please fill in all fields'),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+
+    // Get the integer value for the selected contact name
+    final contactId = contactPersonMapping[contactName] ?? 0;
+
+    final response =
+        await apiProvider.createMaterialRequest(contactName, contactId);
+    setState(() {
+      apiResponse = response;
+    });
+  }
+
+  Map<String, int> contactPersonMapping = {
+    "Anita Oliver": 74,
+    "Agott": 57,
+    "Abigail Peterson": 94,
+    "Azure Interior": 15,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -183,27 +220,45 @@ class _MaterialRequestScreenState extends State<materialRequestScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextFormField(
-                      decoration: const InputDecoration(labelText: 'Contact'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      decoration: const InputDecoration(labelText: 'Product'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      decoration: const InputDecoration(labelText: 'Quantity'),
-                    ),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                      decoration:
-                          const InputDecoration(labelText: 'Unit of Measure'),
+                    TypeAheadFormField(
+                      textFieldConfiguration: TextFieldConfiguration(
+                        controller: contactController,
+                        decoration: const InputDecoration(labelText: 'Contact'),
+                      ),
+                      suggestionsCallback: (pattern) {
+                        return contactPersonMapping.keys.where((contact) =>
+                            contact
+                                .toLowerCase()
+                                .contains(pattern.toLowerCase()));
+                      },
+                      itemBuilder: (context, suggestion) {
+                        final contactName = suggestion;
+                        final contactId =
+                            contactPersonMapping[contactName] ?? 0;
+                        return ListTile(
+                          title: Text(contactName),
+                        );
+                      },
+                      onSuggestionSelected: (suggestion) {
+                        final contactName = suggestion;
+                        final contactId =
+                            contactPersonMapping[contactName] ?? 0;
+                        contactController.text = contactName;
+
+                        print("Selected Contact ID: $contactId");
+                      },
+                      noItemsFoundBuilder: (context) {
+                        return ListTile(
+                          title: const Text('No suggestion found'),
+                          onTap: () {
+                            contactController.clear();
+                          },
+                        );
+                      },
                     ),
                     const SizedBox(height: 20),
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: _submitForm,
                       child: const Text('Submit'),
                     ),
                   ],
