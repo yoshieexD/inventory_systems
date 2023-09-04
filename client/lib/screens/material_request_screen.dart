@@ -10,6 +10,8 @@ import '../bloc/user/user_bloc.dart';
 import '../utils/api_provider.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+
 class materialRequestScreen extends StatefulWidget {
   const materialRequestScreen({Key? key}) : super(key: key);
 
@@ -23,9 +25,11 @@ class _MaterialRequestScreenState extends State<materialRequestScreen> {
   bool isDropdownVisible = false;
 
   final contactController = TextEditingController();
-  final productController = TextEditingController();
-  final quantityController = TextEditingController();
-  final unitController = TextEditingController();
+  // final productController = TextEditingController();
+  // final quantityController = TextEditingController();
+  // final unitController = TextEditingController();
+
+  final nameController = TextEditingController();
 
   Map<String, dynamic>? apiResponse;
 
@@ -54,12 +58,25 @@ class _MaterialRequestScreenState extends State<materialRequestScreen> {
       ));
       return;
     }
-
-    // Get the integer value for the selected contact name
     final contactId = contactPersonMapping[contactName] ?? 0;
 
     final response =
         await apiProvider.createMaterialRequest(contactName, contactId);
+    setState(() {
+      apiResponse = response;
+    });
+  }
+
+  Future<void> _submitDeleteForm() async {
+    final referenceName = nameController.text;
+    if (referenceName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Please fill in all fields'),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+    final response = await apiProvider.deleteMaterialRequest(referenceName);
     setState(() {
       apiResponse = response;
     });
@@ -210,68 +227,112 @@ class _MaterialRequestScreenState extends State<materialRequestScreen> {
           },
         )
       ]),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showModalBottomSheet<void>(
-            context: context,
-            builder: (BuildContext context) {
-              return Container(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TypeAheadFormField(
-                      textFieldConfiguration: TextFieldConfiguration(
-                        controller: contactController,
-                        decoration: const InputDecoration(labelText: 'Contact'),
-                      ),
-                      suggestionsCallback: (pattern) {
-                        return contactPersonMapping.keys.where((contact) =>
-                            contact
-                                .toLowerCase()
-                                .contains(pattern.toLowerCase()));
-                      },
-                      itemBuilder: (context, suggestion) {
-                        final contactName = suggestion;
-                        final contactId =
-                            contactPersonMapping[contactName] ?? 0;
-                        return ListTile(
-                          title: Text(contactName),
-                        );
-                      },
-                      onSuggestionSelected: (suggestion) {
-                        final contactName = suggestion;
-                        final contactId =
-                            contactPersonMapping[contactName] ?? 0;
-                        contactController.text = contactName;
-
-                        print("Selected Contact ID: $contactId");
-                      },
-                      noItemsFoundBuilder: (context) {
-                        return ListTile(
-                          title: const Text('No suggestion found'),
-                          onTap: () {
-                            contactController.clear();
+      floatingActionButton: SpeedDial(
+        // Use the SpeedDial widget
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        animatedIcon: AnimatedIcons.menu_close,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.add, color: Colors.white),
+            backgroundColor: Colors.green,
+            label: 'Add',
+            onTap: () {
+              showModalBottomSheet<void>(
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TypeAheadFormField(
+                          textFieldConfiguration: TextFieldConfiguration(
+                            controller: contactController,
+                            decoration:
+                                const InputDecoration(labelText: 'Contact'),
+                          ),
+                          suggestionsCallback: (pattern) {
+                            return contactPersonMapping.keys.where((contact) =>
+                                contact
+                                    .toLowerCase()
+                                    .contains(pattern.toLowerCase()));
                           },
-                        );
-                      },
+                          itemBuilder: (context, suggestion) {
+                            final contactName = suggestion;
+                            final contactId =
+                                contactPersonMapping[contactName] ?? 0;
+                            return ListTile(
+                              title: Text(contactName),
+                            );
+                          },
+                          onSuggestionSelected: (suggestion) {
+                            final contactName = suggestion;
+                            final contactId =
+                                contactPersonMapping[contactName] ?? 0;
+                            contactController.text = contactName;
+
+                            print("Selected Contact ID: $contactId");
+                          },
+                          noItemsFoundBuilder: (context) {
+                            return ListTile(
+                              title: const Text('No suggestion found'),
+                              onTap: () {
+                                contactController.clear();
+                              },
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        ElevatedButton(
+                          onPressed: _submitForm,
+                          child: const Text('Submit'),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: _submitForm,
-                      child: const Text('Submit'),
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
-          );
-        },
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.delete, color: Colors.white),
+            backgroundColor: Colors.red,
+            label: 'Delete',
+            onTap: () {
+              showBottomSheet<void>(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return Container(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextFormField(
+                            controller: nameController,
+                            decoration:
+                                const InputDecoration(labelText: 'Name'),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: _submitDeleteForm,
+                            child: const Text('Submit'),
+                          ),
+                        ],
+                      ),
+                    );
+                  });
+              // Add your delete logic here
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.update, color: Colors.white),
+            backgroundColor: Colors.blue,
+            label: 'Update',
+            onTap: () {
+              // Add your update logic here
+            },
+          ),
+        ],
       ),
     );
   }

@@ -18,6 +18,18 @@ class ApiProvider {
     }
   }
 
+  Future delete(String res) async {
+    try {
+      dio.options.extra['withCredentials'] = true;
+      final response = await dio.delete(
+        "${dotenv.env['API_URL']}" "$res",
+      );
+      return response;
+    } catch (err) {
+      return err;
+    }
+  }
+
   Future post(String res, [Map<String, dynamic>? data]) async {
     try {
       dio.options.extra['withCredentials'] = true;
@@ -131,6 +143,16 @@ class ApiProvider {
       return response;
     } catch (error) {
       return {'error': 'creating material request failed'};
+    }
+  }
+
+  Future deleteMaterialRequest(String name) async {
+    try {
+      final rawResponse = await delete("/delete-material?name=$name");
+      final Map<String, dynamic> response = jsonDecode(rawResponse.toString());
+      return response;
+    } catch (error) {
+      return {'error': 'deleting material request failed'};
     }
   }
 }
